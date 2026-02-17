@@ -247,6 +247,10 @@ fn clean_last_applied_configuration(
 
 #[derive(Parser, Default, Debug)]
 struct Args {
+    #[arg(long)]
+    only: Vec<String>,
+    #[arg(long)]
+    exclude: Vec<String>,
     output_dir: String,
 }
 
@@ -273,6 +277,14 @@ async fn main() -> anyhow::Result<()> {
     for group in discovery.groups() {
         for (ar, caps) in group.recommended_resources() {
             if !caps.supports_operation(verbs::LIST) {
+                continue;
+            }
+
+            if args.exclude.contains(&ar.plural) {
+                continue;
+            }
+
+            if !args.only.is_empty() && !args.only.contains(&ar.plural) {
                 continue;
             }
 
